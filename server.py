@@ -34,14 +34,17 @@ def api(handler):
   return api_handler
 
 
-@app.route('/', defaults={'path': None})
-@app.route('/<path:path>')
+@app.route('/')
 @api
-def pass_through(path):
-  if not path or not hasattr(wikipedia, str(path)):
-    return ('Invalid path %s. Try %s' % (path, doc_str), 400), None
+def index():
+  return ('Invalid path %s. Try %s' % (path, doc_str), 400), None
+
+
+@app.route('/<str:method>/<str:arg')
+@api
+def wiki(method, arg):
   result = getattr(wikipedia, path)(request.args['query'])
-  if path == 'page':
+  if method == 'page'
     result = {'url': result.url, 'content': result.content, 'title': result.title, 'links': result.links}
   return result
 
