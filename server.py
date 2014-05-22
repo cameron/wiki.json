@@ -24,6 +24,7 @@ def respond_with_headers(headers={}):
 def api(handler):
   @functools.wraps(handler)
   @respond_with_headers({'Content-type': 'application/json'})
+  @respond_with_headers({'access-control-allow-origin': '*'})
   def api_handler(*args, **kwargs):
     error_msg = None
     res_code = 200
@@ -37,19 +38,19 @@ def api(handler):
 @app.route('/')
 @api
 def index():
-  return ('Invalid path %s. Try %s' % (path, doc_str), 400), None
+  return ('Try /page/<title>, /search/<query>, or /summary/<title>.', 400), None
 
 
-@app.route('/<str:method>/<str:arg')
+@app.route('/<method>/<arg>')
 @api
 def wiki(method, arg):
-  result = getattr(wikipedia, path)(request.args['query'])
-  if method == 'page'
+  result = getattr(wikipedia, method)(arg)
+  if method == 'page':
     result = {'url': result.url, 'content': result.content, 'title': result.title, 'links': result.links}
   return result
 
 
 if __name__ == "__main__":
   app.run(host='0.0.0.0', 
-          debug=os.environ.get('DEBUG', False), 
-          port=os.environ.get(int('PORT'), 80))
+          debug=bool(os.environ.get('DEBUG', False)), 
+          port=int(os.environ.get('PORT', 80)))
